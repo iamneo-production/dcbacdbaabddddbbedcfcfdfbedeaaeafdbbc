@@ -1,81 +1,160 @@
-import { useState } from "react";
+import React from 'react'
+import { useState } from 'react';
+import { Banner } from './components/UI/Banner/Banner';
+import  Button from './components/UI/Button/Button';
+import './quizstyle.css'
 
-import "./App.css";
-import Banner from "./components/UI/Banner/Banner";
+const App = () => {
+    var Questionbank = [
+        {
+            Question: "Who is the father of your nation ?",
+            Answers: [
+                { Answer: "Mahatma Gandhi", isCorrect: true },
+                { Answer: "Jawaharlal Nehru", isCorrect: false },
+                { Answer: "Donald Trump", isCorrect: false },
+                { Answer: "Barrack Obama", isCorrect: false }
+            ]
+        },
+        {
+            Question: "What color is are the leaves?",
+            Answers: [
+                { Answer: "Blue", isCorrect: false },
+                { Answer: "Red", isCorrect: false },
+                { Answer: "Yellow", isCorrect: false },
+                { Answer: "Green", isCorrect: true }
+            ]
+        }, {
+            Question: "What color is the sky ",
+            Answers: [
+                { Answer: "Blue", isCorrect: true },
+                { Answer: "Red", isCorrect: false },
+                { Answer: "Yellow", isCorrect: false },
+                { Answer: "Green", isCorrect: false }
+            ]
+        },
+        {
+            Question: "What color is the sky ?",
+            Answers: [
+                { Answer: "Blue", isCorrect: true },
+                { Answer: "Red", isCorrect: false },
+                { Answer: "Yellow", isCorrect: false },
+                { Answer: "Green", isCorrect: false }
+            ]
+        },
+        {
+            Question: "What color is the fire ?",
+            Answers: [
+                { Answer: "Blue", isCorrect: false },
+                { Answer: "Red", isCorrect: false },
+                { Answer: "Yellow", isCorrect: true },
+                { Answer: "Green", isCorrect: false }
+            ]
+        }
+    ]
 
-import Button from "./components/UI/Button/Button";
-import Card from "./components/UI/Card/Card";
-import questions from "./Data/data";
+    //useState Hook
+    const [currentQuestion, setCurrentQuestion] = useState(0);
+    const [score, setScore] = useState(0);
+    const [showScore, setShowScore] = useState(false);
+    const [showQuiz, setShowQuiz] = useState(false);
+    const [showStart, setShowStart] = useState(false);
+    const [questionsCorrect, setQuestionsCorrect] = useState(0);
 
-function App() {
-  const [start, setStart] = useState(false);
-  const [end, setEnd] = useState(false);
-  const [questionsCorrect, setQuestionsCorrect] = useState(0);
-
-  const startTest = () => {
-    setQuestionsCorrect(0);
-    setStart(true);
-  };
-
-  function func(correct) {
-    if (correct === true) {
-      setQuestionsCorrect(questionsCorrect + 1);
-      console.log("questionsCorrect: " + questionsCorrect);
+  const handleResultsButton = () => {
+      if(currentQuestion === 5){
+        setShowStart(true);
+      }
+  }  
+    
+   const handleQuizButton = () => {
+        setShowQuiz(true);
     }
-  }
 
-  function showResults() {
-    setStart(false);
-    setEnd(true);
-  }
+const handleAnswerResponse=(isCorrect)=>
+{
+    if(isCorrect)
+    {
+        setScore(score+1);
+        setQuestionsCorrect(score+1);
+    }
 
-  return (
-    <div className="app">
-      <h1>Quizz App</h1>
+   const nextQuestion= currentQuestion+1;
+   if(nextQuestion<Questionbank.length)
+   {
+    setCurrentQuestion(nextQuestion);
+   }
+   else{
+    setShowScore(true);
+   }
+}
+const text = () => {
+    const nextQuestion= currentQuestion+1;
+    if(nextQuestion < Questionbank.length){
+      return "Show Results"
+    } else {                        
+     return "Start Quiz"
+    }
+      
+}
 
-      {start ? (
-        <div className="container">
-          <div className="card-container">
-            {questions.map(
-              ({
-                questionId,
-                question,
-                option1,
-                option2,
-                option3,
-                option4,
-                answer,
-              }) => {
-                return (
-                  <Card
-                    key={questionId}
-                    question={question}
-                    correctAnswerMarkUpdate={func}
-                    attempt={func}
-                    options={{
-                      option1: option1,
-                      option2: option2,
-                      option3: option3,
-                      option4: option4,
-                    }}
-                    answer={answer}
-                  />
-                );
-              }
-            )}
-          </div>
-          <Button onClick={showResults}>{"Show results"}</Button>
+const resetQuiz=()=>
+{
+    setCurrentQuestion(0);
+    setScore(0);
+    setShowScore(false);
+}
+
+    return (
+        <div className='app'>
+       <a
+          className="App-link"
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+            {showScore ? (
+                <div className='score-section'>
+                    <Banner/>
+                    You have answered {score} / {Questionbank.length} Correctly
+                    <>
+                       <Button type="submit" onClick={resetQuiz} text = "Start Quiz"></Button>
+                    </>
+                </div>
+            )
+                : (
+                    <>
+                    <h1>Quizz App</h1>
+                      {!showQuiz && <Button  onClick={() => handleQuizButton()} text = "Start Quiz"></Button>}
+                      {showQuiz && (
+                        <div>
+                        <div className='question-section'>
+                            <div className='question-count'>
+                               <span>{currentQuestion+1}</span>/{Questionbank.length}
+                            </div>
+
+                            <div className='question-text'>
+                             {Questionbank[currentQuestion].Question}
+                            </div>
+                        </div>
+
+                        <div className='answer-section'>
+                          {Questionbank[currentQuestion].Answers.map((answer)=>
+                          (
+                              <button onClick={()=>handleAnswerResponse(answer.isCorrect)}>{answer.Answer}</button>
+                          ))}
+                         <Button>{text()}
+                          </Button>
+                        </div>
+                        
+                         </div>)}
+                    </>
+                )
+            }
+
         </div>
-      ) : (
-        <div className="end">
-          {end && (
-            <Banner>You have answered {questionsCorrect} / 5 Correctly</Banner>
-          )}
-          <Button onClick={startTest}>{"Start Quiz"}</Button>
-        </div>
-      )}
-    </div>
-  );
+    );
 }
 
 export default App;
